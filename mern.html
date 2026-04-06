@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Digital Library System</title>
+
+
+<style>
+body{
+  margin:0;
+  font-family:"Segoe UI",sans-serif;
+  background:linear-gradient(135deg,#141e30,#243b55);
+  color:white;
+}
+section{display:none;}
+.container{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.card{
+  background:#1f2a40;
+  padding:30px;
+  width:360px;
+  border-radius:12px;
+  box-shadow:0 15px 30px rgba(0,0,0,0.6);
+}
+h2{text-align:center;}
+input,button{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border:none;
+  border-radius:6px;
+}
+input{background:#2e3b55;color:white;}
+button{
+  background:linear-gradient(135deg,#00c6ff,#0072ff);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+.back{background:#ff4b5c;}
+.link{text-align:center;color:#00c6ff;cursor:pointer}
+
+
+/* DASHBOARD */
+.dashboard{min-height:100vh;padding:20px;}
+.topbar{
+  background:#1f2a40;
+  padding:15px 25px;
+  border-radius:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.profile-area{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.avatar{
+  background:#0072ff;
+  padding:8px 10px;
+  border-radius:50%;
+  cursor:pointer;
+}
+.logout-btn{
+  background:#ff4b5c;
+  padding:6px 12px;
+  border-radius:6px;
+}
+
+
+.modules,.stats{
+  margin-top:25px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:20px;
+}
+.module,.stat-card{
+  background:#1f2a40;
+  padding:20px;
+  border-radius:12px;
+  text-align:center;
+  cursor:pointer;
+}
+.module:hover{background:#0072ff}
+
+
+/* SEARCH */
+.search-box{margin:20px 0;}
+
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;}
+th,td{text-align:center;padding:8px;border-bottom:1px solid #444;}
+th{background:#0072ff}
+
+
+/* POPUP */
+.popup{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+.popup-box{
+  background:#1f2a40;
+  padding:25px;
+  border-radius:10px;
+  width:300px;
+  text-align:center;
+}
+</style>
+</head>
+
+
+<body>
+
+
+<!-- LOGIN -->
+<section id="login">
+<div class="container"><div class="card">
+<h2>🔐 Login</h2>
+<input id="loginEmail" placeholder="Email">
+<input id="loginPass" type="password">
+<button onclick="login()">Login</button>
+<button class="back" onclick="openRegister()">Register</button>
+</div></div>
+</section>
+
+
+<!-- REGISTER -->
+<section id="register">
+<div class="container"><div class="card">
+<h2 id="regTitle"></h2>
+<input id="regName" placeholder="Full Name">
+<input id="regEmail" placeholder="Email">
+<input id="regPass" type="password">
+<button onclick="register()">Register</button>
+<div class="link" onclick="show('login')">Back</div>
+</div></div>
+</section>
+
+
+<!-- ADMIN DASHBOARD -->
+<section id="dashboard" class="dashboard">
+<div class="topbar">
+<h2>📚 Admin Dashboard</h2>
+<div class="profile-area">
+<span class="avatar" onclick="openProfile()">👤</span>
+<span id="profileName"></span>
+<button class="logout-btn" onclick="logout()">Logout</button>
+<!-- ADMIN DASHBOARD - modules div lo add cheyyandi -->
+<div class="module" onclick="show('changePass')">🔐 Change Password</div>
+</div>
+</div>
+
+
+<div class="stats">
+
+
+  <div class="stat-card" onclick="showAllBooks()">
+    Books<br>
+    <b id="booksCount">0</b>
+  </div>
+
+
+  <div class="stat-card" onclick="showMembers()">
+    Members<br>
+    <b id="membersCount">0</b>
+  </div>
+
+
+  <div class="stat-card" onclick="showIssuedBooks()">
+    Issued<br>
+    <b id="issuedCount">0</b>
+  </div>
+
+
+  <div class="stat-card" onclick="showOverdueBooks()">
+    Overdue<br>
+    <b id="overdueCount">0</b>
+  </div>
+  <div class="module" onclick="showRequests()">📩 Requests</div>
+
+
+</div>
+
+
+<div class="modules">
+<div class="module" onclick="show('addBook')">📚 Add Book</div>
+<div class="module" onclick="show('addMember')">👥 Add Member</div>
+<div class="module" onclick="show('issue')">📖 Issue</div>
+<div class="module" onclick="show('return')">↩ Return</div>
+</div>
+</section>
+
+
+<!-- USER DASHBOARD -->
+<section id="userDash" class="dashboard">
+<div class="topbar">
+<h2>📖 User Dashboard</h2>
+<div class="profile-area">
+<span class="avatar" onclick="openProfile()">👤</span>
+<span id="profileName2"></span>
+<button class="logout-btn" onclick="logout()">Logout</button>
+<!-- USER DASHBOARD - modules div lo add cheyyandi -->
+<div class="module" onclick="show('changePass')">🔐 Change Password</div>
+</div>
+</div>
+
+
+<div class="search-box">
+<input id="searchInput" placeholder="Search by Book / Author" onkeyup="searchBooks()">
+</div>
+
+
+<div class="modules">
+<div class="module" onclick="showAvailableBooks()">📚 Available Books</div>
+<div class="module" onclick="showMyBooks()">📕 My Books</div>
+</div>
+</section>
+
+
+<!-- ADD BOOK -->
+<section id="addBook">
+<div class="container"><div class="card">
+<h2>Add Book</h2>
+<input id="bookTitle" placeholder="Book Title">
+<input id="bookAuthor" placeholder="Author Name">
+<input id="bookPdf" type="file" accept="application/pdf">
+<input id="bookQty" type="number" placeholder="Quantity">
+<button onclick="addBook()">Add</button>
+<button class="back" onclick="show('dashboard')">Back</button>
+</div></div>
+</section>
+
+
+<!-- ADD MEMBER - UPDATED -->
+<section id="addMember">
+<div class="container"><div class="card">
+<h2>Add Member</h2>
+<input id="memberName" placeholder="Member Name">
+<input id="memberEmail" placeholder="Member Email">
+<input id="memberPass" type="password" placeholder="Password (leave blank for 123456)">
+<button onclick="addMember()">Add Member</button>
+<button class="back" onclick="show('dashboard')">Back</button>
+</div></div>
+</section>
+
+
+
+
+<!-- ISSUE - NEW VERSION -->
+<section id="issue">
+<div class="container"><div class="card">
+<h2>📖 Issue Book</h2>
+<input id="issueBookId" placeholder="Book ID">
+<input id="issueUserEmail" placeholder="Member Email">
+<input id="dueDate" type="date">
+<p style="font-size:14px;color:#00c6ff;font-weight:bold;">
+  📅 Issue Date: <span id="issueDateDisplay">Loading...</span>
+</p>
+<button onclick="issueBook()">✅ Issue Book</button>
+<button class="back" onclick="show('dashboard')">Back</button>
+</div></div>
+</section>
+
+
+
+
+<!-- RETURN -->
+<section id="return">
+<div class="container"><div class="card">
+<h2>Return Book</h2>
+
+
+<input id="returnBookId" placeholder="Book ID">
+
+
+<button onclick="returnBookAdmin()">Return</button>
+
+
+<button class="back" onclick="show('dashboard')">Back</button>
+
+
+</div></div>
+</section>
+
+
+<!-- LIST VIEW -->
+<section id="listView">
+<div class="container"><div class="card" style="width:650px">
+<h2 id="listTitle"></h2>
+<table>
+<thead id="listHead"></thead>
+<tbody id="listTable"></tbody>
+</table>
+<button class="back" onclick="goBack()">Back</button>
+</div></div>
+</section>
+<!-- CHANGE PASSWORD -->
+<section id="changePass">
+<div class="container"><div class="card">
+<h2>🔐 Change Password</h2>
+<input id="oldPass" type="password" placeholder="Current Password">
+<input id="newPass" type="password" placeholder="New Password">
+<input id="confirmPass" type="password" placeholder="Confirm New Password">
+<button onclick="changePassword()">Update Password</button>
+<button class="back" onclick="show(currentUser.role==='admin'?'dashboard':'userDash')">Back</button>
+</div></div>
+</section>
+
+
+
+<!-- PROFILE -->
+<div class="popup" id="profilePopup">
+<div class="popup-box">
+<h3>👤 Profile</h3>
+<p><b>Name:</b> <span id="pName"></span></p>
+<p><b>Email:</b> <span id="pEmail"></span></p>
+<p><b>Role:</b> <span id="pRole"></span></p>
+<button onclick="profilePopup.style.display='none'">Close</button>
+</div>
+</div>
+
+
+<!-- MESSAGE -->
+<div class="popup" id="popup">
+<div class="popup-box">
+<p id="popupText"></p>
+<button onclick="popup.style.display='none'">OK</button>
+</div>
+</div>
+
+
+
+<script>
+let users=[],books=[],members=[],currentUser=null,regRole="user";
+
+
+/* COMMON */
+function show(id){
+ document.querySelectorAll("section").forEach(s=>s.style.display="none");
+ document.getElementById(id).style.display="block";
+}
+function msg(t){popupText.innerText=t;popup.style.display="flex";}
+
+
+/* REGISTER */
+function openRegister() {
+  regRole = "user";  // always user
+  regTitle.innerText = "Register as USER";
+  show('register');
+}
+async function register(){
+  let payload = {
+    name: regName.value,
+    email: regEmail.value,
+    password: regPass.value,
+    role: regRole
+  };
+
+
+  try {
+    let res = await fetch('http://localhost:5000/api/users/register', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(payload)
+});
+    let data = await res.json();
+    if(data.success){
+      msg("Registered Successfully");
+      show('login');
+    } else {
+      msg(data.message);
+    }
+  } catch(e){
+    msg("Server Error");
+  }
+}
+
+
+/* LOGIN */
+async function login(){
+  try {
+    let res = await fetch('http://localhost:5000/api/users/login',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:loginEmail.value, password:loginPass.value})
+    });
+
+
+    let data = await res.json();
+
+
+    if(data.success){
+      currentUser = data.user;   // object from backend
+      profileName.innerText = currentUser.name;
+      profileName2.innerText = currentUser.name;
+
+
+      show(currentUser.role === "admin" ? "dashboard" : "userDash");
+
+
+      await loadBooks();          // fetch books from backend
+      await updateCounts();       // ← must await here for members count
+    }
+    else {
+      msg(data.message);
+    }
+
+
+  } catch(e){
+    msg("Server Error");
+  }
+}
+function logout(){currentUser=null;show('login');}
+async function loadBooks(){
+  try{
+    let res = await fetch('http://localhost:5000/api/books');
+    books = await res.json();
+    console.log("Books loaded:", books);  // DEBUG - Check browser console
+    updateCounts();
+  }catch(e){
+    console.error("Load books error:", e);  // DEBUG
+    msg("Cannot load books - Check server");
+  }
+}
+
+
+function issueBookWithFullId(id){
+  show('issue');
+  document.getElementById("issueBookId").value = id;
+}
+
+
+/* PROFILE */
+function openProfile(){
+ pName.innerText=currentUser.name;
+ pEmail.innerText=currentUser.email;
+ pRole.innerText=currentUser.role.toUpperCase();
+ profilePopup.style.display="flex";
+}
+
+
+/* ADMIN */
+async function addBook(){
+  if(!bookTitle.value || !bookAuthor.value || !bookPdf.files[0]){
+    msg("Please fill all fields and select PDF");
+    return;
+  }
+
+
+  const formData = new FormData();
+  formData.append('title', bookTitle.value);
+  formData.append('author', bookAuthor.value);
+  formData.append('pdf', bookPdf.files[0]);
+  formData.append('quantity', bookQty.value);
+
+
+  try {
+    let res = await fetch("http://localhost:5000/api/books", {
+      method: "POST",
+      body: formData  // 🔥 No Content-Type header for FormData
+    });
+
+
+    let data = await res.json();
+    msg(data.message);
+
+
+    // Clear inputs
+    bookTitle.value = "";
+    bookAuthor.value = "";
+    bookPdf.value = "";
+   
+    await loadBooks();
+  } catch(e) {
+    msg("Server Error: " + e.message);
+  }
+}
+
+
+async function addMember(){
+  const password = memberPass.value || "123456"; // Default password
+ 
+  let payload = {
+    name: memberName.value,
+    email: memberEmail.value,
+    password: password,
+    role: "user"
+  };
+ 
+  try {
+    let res = await fetch('http://localhost:5000/api/users/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    let data = await res.json();
+   
+    if(data.success){
+      msg(`✅ Member Added!\nEmail: ${memberEmail.value}\nPassword: ${password}`);
+      memberName.value = "";
+      memberEmail.value = "";
+      memberPass.value = "";
+      await updateCounts();
+    } else {
+      msg(data.message);
+    }
+  } catch(e){
+    msg("Server Error: " + e.message);
+  }
+}
+
+
+
+function showMembers(){
+ show('listView');
+ listTitle.innerText="Members List";
+ listHead.innerHTML="<tr><th>ID</th><th>Name</th><th>Email</th></tr>";
+ listTable.innerHTML="";
+ members.forEach(m=>{
+  listTable.innerHTML+=`<tr><td>${m.id}</td><td>${m.name}</td><td>${m.email}</td></tr>`;
+ });
+}
+
+
+async function issueBook() {
+  const bookId = document.getElementById("issueBookId").value.trim();
+  const userEmail = document.getElementById("issueUserEmail").value.trim();
+  const returnDate = document.getElementById("dueDate").value;
+
+  if (!bookId || !userEmail || !returnDate) {
+    msg("Fill all fields");
+    return;
+  }
+
+  const book = books.find(b => b._id === bookId);
+  if (!book) {
+    msg("❌ Book ID not found!");
+    return;
+  }
+
+  if ((book.availableCopies || 0) <= 0) {
+    msg("❌ No copies available!");
+    return;
+  }
+
+  const today = new Date();
+  const returnDt = new Date(returnDate + "T23:59:59");
+  if (returnDt <= today) {
+    msg("❌ Return date must be in future!");
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/books/${bookId}/issue`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userEmail,
+        returnDate,
+        issueDate: new Date().toISOString()
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      document.getElementById("issueBookId").value = "";
+      document.getElementById("issueUserEmail").value = "";
+      document.getElementById("dueDate").value = "";
+
+      await loadBooks();
+      await updateCounts();
+      showAllBooks();
+
+      msg(`✅ "${book.title}" issued to ${userEmail}`);
+    } else {
+      msg("❌ " + (data.message || "Issue failed"));
+    }
+  } catch (e) {
+    msg("❌ Server error: " + e.message);
+  }
+}
+
+async function loadBooks() {
+  try {
+    const res = await fetch("http://localhost:5000/api/books");
+    books = await res.json();
+    return books;
+  } catch (e) {
+    console.error("Load books error:", e);
+    msg("Cannot load books - Check server");
+    return [];
+  }
+}
+
+
+async function returnBook(bookId) {
+  if (!confirm("Return this book?")) return;
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/books/${bookId}/return`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userEmail: currentUser.email
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      await loadBooks();
+      await updateCounts();
+      await showMyBooks();
+    }
+
+    msg(data.message);
+  } catch (e) {
+    msg("❌ Server error");
+  }
+}
+async function updateCounts() {
+  if (!books || !Array.isArray(books)) books = [];
+
+  const now = new Date();
+
+  books.forEach(b => {
+    let fine = 0;
+    let status = (b.availableCopies || 0) > 0 ? "Available" : "Issued";
+
+    if (b.returnDate) {
+      const due = new Date(b.returnDate);
+      due.setHours(23, 59, 59, 999);
+
+      if (!isNaN(due.getTime()) && now > due) {
+        const daysLate = Math.floor((now - due) / (1000 * 60 * 60 * 24));
+        if (daysLate > 0) {
+          fine = daysLate * 5;
+          status = "Overdue";
+        }
+      }
+    }
+
+    b.fine = fine;
+    b.status = status;
+  });
+
+  if (document.getElementById("booksCount")) {
+    booksCount.innerText = books.length;
+  }
+
+  try {
+    const res = await fetch("http://localhost:5000/api/users/count");
+    const data = await res.json();
+    if (document.getElementById("membersCount")) {
+      membersCount.innerText = data.count || 0;
+    }
+  } catch {
+    if (document.getElementById("membersCount")) {
+      membersCount.innerText = 0;
+    }
+  }
+
+  const totalIssuedCopies = books.reduce((sum, b) => sum + (b.issuedCount || 0), 0);
+  const overdueBooks = books.filter(b => b.status === "Overdue").length;
+
+  if (document.getElementById("issuedCount")) {
+    issuedCount.innerText = totalIssuedCopies;
+  }
+
+  if (document.getElementById("overdueCount")) {
+    overdueCount.innerText = overdueBooks;
+  }
+}
+async function fetchMembersCount() {
+  try {
+    const res = await fetch("http://localhost:5000/api/users/count");
+    const data = await res.json();
+    return data.count;
+  } catch(e) {
+    return 0;
+  }
+}
+
+
+
+/* USER */
+function renderBooks(list){
+ listTable.innerHTML="";
+ list.forEach(b=>{
+  listTable.innerHTML+=`
+  <tr>
+   <td>${b.id}</td>
+   <td>${b.title}</td>
+   <td>${b.author}</td>
+   <td><button onclick="window.open('http://localhost:5000/' + '${b.pdf}')">Read</button></td>
+  </tr>`;
+ });
+}
+function showAvailableBooks() {
+  show("listView");
+  listTitle.innerText = "📚 Books List";
+  listHead.innerHTML =
+    "<tr><th>ID</th><th>Title</th><th>Author</th><th>Available</th><th>Action</th></tr>";
+  listTable.innerHTML = "";
+
+  if (books.length === 0) {
+    listTable.innerHTML = "<tr><td colspan='5'>No books available</td></tr>";
+    return;
+  }
+
+  books.forEach(b => {
+    const copies = b.availableCopies || 0;
+
+    listTable.innerHTML += `
+      <tr>
+        <td>${b._id}</td>
+        <td>${b.title}</td>
+        <td>${b.author}</td>
+        <td style="color:${copies > 0 ? "#4CAF50" : "#ff4b5c"}">${copies}</td>
+        <td>
+          ${
+            copies > 0
+              ? `<button onclick="requestIssue('${b._id}')"
+                  style="background:#00c6ff;padding:6px 10px;border:none;border-radius:4px;cursor:pointer">
+                  📩 Request
+                </button>`
+              : `<button disabled
+                  style="background:#777;padding:6px 10px;border:none;border-radius:4px">
+                  Out of Stock
+                </button>`
+          }
+        </td>
+      </tr>
+    `;
+  });
+}
+
+
+async function showMyBooks() {
+  try {
+    show('listView');
+    listTitle.innerText = "📕 My Books";
+    listHead.innerHTML = "<tr><th>Title</th><th>Issue Date</th><th>Return Date</th><th>Status</th><th>Fine</th><th>Action</th></tr>";
+    listTable.innerHTML = "<tr><td colspan='6'>Loading...</td></tr>";
+
+    const res = await fetch(`http://localhost:5000/api/users/${currentUser.email}/books`);
+    const myBooks = await res.json();
+
+    listTable.innerHTML = "";
+
+    if (!myBooks.length) {
+      listTable.innerHTML = "<tr><td colspan='6'>No books issued</td></tr>";
+      return;
+    }
+
+    myBooks.forEach(b => {
+      const issueDt = b.issueDate ? new Date(b.issueDate).toLocaleDateString() : "-";
+      const returnDt = b.returnDate ? new Date(b.returnDate).toLocaleDateString() : "-";
+
+      listTable.innerHTML += `
+        <tr>
+          <td>${b.title}</td>
+          <td>${issueDt}</td>
+          <td>${returnDt}</td>
+          <td>
+            <span style="color:${b.status === 'Overdue' ? '#ff4b5c' : '#00c6ff'}">
+              ${b.status}
+            </span>
+          </td>
+          <td><b>${b.fine || 0} ₹</b></td>
+          <td>
+            <button onclick="readBook('${b.pdf}')" style="background:#00c6ff">📖 Read</button>
+            <button onclick="returnBook('${b._id}')" style="background:#4CAF50">↩ Return</button>
+            ${b.fine > 0 ? `<button onclick="payFine('${b._id}')" style="background:#ff9800">💰 Pay Fine</button>` : ''}
+          </td>
+        </tr>
+      `;
+    });
+  } catch (e) {
+    listTable.innerHTML = "<tr><td colspan='6'>Error loading books</td></tr>";
+    msg("❌ Unable to load My Books");
+  }
+}
+
+
+
+function searchBooks(){
+ let q=searchInput.value.toLowerCase();
+ let filtered=books.filter(b=>
+  b.title.toLowerCase().includes(q) ||
+  b.author.toLowerCase().includes(q)
+ );
+ show('listView');
+ listTitle.innerText="Search Results";
+ listHead.innerHTML="<tr><th>ID</th><th>Title</th><th>Author</th><th>Read</th></tr>";
+ renderBooks(filtered);
+}
+//<!-- mern.html lo ee function replace -->
+function showAllBooks() {
+  show("listView");
+  listTitle.innerText = "All Books";
+  listHead.innerHTML = `
+    <tr>
+      <th>ID</th>
+      <th>Title</th>
+      <th>Author</th>
+      <th>Total</th>
+      <th>Available</th>
+      <th>Issued</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  `;
+  listTable.innerHTML = "";
+
+  books.forEach(b => {
+    const total = Number(b.quantity || 1);
+    const available = Number(b.availableCopies || 0);
+    const issued = Number(b.issuedCount || 0);
+    const status = available > 0 ? "Available" : "Issued";
+
+    const readBtn = b.pdf
+      ? `<a href="http://localhost:5000/${b.pdf}" target="_blank"
+          style="background:#4CAF50;padding:5px 10px;color:white;border-radius:4px;text-decoration:none;margin:2px;">
+          📄 Read
+        </a>`
+      : `No PDF`;
+
+    listTable.innerHTML += `
+      <tr>
+        <td>${b._id.slice(0, 8)}...<br><small>${b._id}</small></td>
+        <td>${b.title}</td>
+        <td>${b.author}</td>
+        <td>${total}</td>
+        <td>${available}</td>
+        <td>${issued}</td>
+        <td style="color:${available > 0 ? "#4CAF50" : "#ff4b5c"}">${status}</td>
+        <td>
+          ${readBtn}
+          <button onclick="issueBookWithFullId('${b._id}')"
+            ${available <= 0 ? "disabled" : ""}
+            style="background:${available > 0 ? "#00c6ff" : "#777"};padding:5px 10px;border:none;color:white;border-radius:4px;margin:2px;cursor:${available > 0 ? "pointer" : "not-allowed"}">
+            📖 Issue
+          </button>
+          <button onclick="deleteBook('${b._id}')"
+            style="background:#ff4b5c;padding:5px 10px;border:none;color:white;border-radius:4px;margin:2px;cursor:pointer">
+            ❌ Delete
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+}
+function showMembers(){
+  if(currentUser.role !== "admin"){
+    msg("Access Denied");
+    return;
+  }
+ 
+  show('listView');
+  listTitle.innerText = "All Members";
+  listHead.innerHTML = "<tr><th>Name</th><th>Email</th><th>Action</th></tr>";
+  listTable.innerHTML = "";
+ 
+  // 🔥 Backend fetch
+  fetch("http://localhost:5000/api/users/all")
+    .then(res=>res.json())
+    .then(data=>{
+      let onlyUsers = data.filter(u => u.role === "user");
+      onlyUsers.forEach(u=>{
+        listTable.innerHTML += `
+          <tr>
+            <td>${u.name}</td>
+            <td>${u.email}</td>
+            <td>
+              <button onclick="deleteUser('${u._id}')" style="background:#ff4b5c">
+                Delete
+              </button>
+            </td>
+          </tr>`;
+      });
+    })
+    .catch(err=>msg("Error loading members"));
+}
+
+
+async function showIssuedBooks() {
+  show('listView');
+  listTitle.innerText = "Issued Books";
+  listHead.innerHTML = `
+    <tr>
+      <th>Book</th>
+      <th>Author</th>
+      <th>User Email</th>
+      <th>Issue Date</th>
+      <th>Return Date</th>
+      <th>Status</th>
+      <th>Fine</th>
+    </tr>
+  `;
+  listTable.innerHTML = `<tr><td colspan="7">Loading...</td></tr>`;
+
+  try {
+    const res = await fetch("http://localhost:5000/api/issued-books");
+    const data = await res.json();
+
+    listTable.innerHTML = "";
+
+    if (!data.length) {
+      listTable.innerHTML = `<tr><td colspan="7">No issued books</td></tr>`;
+      return;
+    }
+
+    data.forEach(b => {
+      const issueDt = b.issueDate ? new Date(b.issueDate).toLocaleDateString() : "-";
+      const returnDt = b.returnDate ? new Date(b.returnDate).toLocaleDateString() : "-";
+
+      listTable.innerHTML += `
+        <tr>
+          <td>${b.title}</td>
+          <td>${b.author}</td>
+          <td>${b.userEmail || "-"}</td>
+          <td>${issueDt}</td>
+          <td>${returnDt}</td>
+          <td style="color:${b.status === 'Overdue' ? '#ff4b5c' : '#00c6ff'}">
+            ${b.status}
+          </td>
+          <td>${b.fine || 0} ₹</td>
+        </tr>
+      `;
+    });
+
+  } catch (e) {
+    listTable.innerHTML = `<tr><td colspan="7">Error loading issued books</td></tr>`;
+    msg("❌ Unable to load issued books");
+  }
+}
+
+
+function showOverdueBooks(){
+  show('listView');
+  listTitle.innerText = "Overdue Books";
+  listHead.innerHTML = "<tr><th>Title</th><th>Fine</th></tr>";
+  listTable.innerHTML = "";
+
+
+  books.filter(b=>b.status==="Overdue").forEach(b=>{
+    listTable.innerHTML += `
+      <tr>
+        <td>${b.title}</td>
+        <td>${b.fine || 0}</td>
+      </tr>`;
+  });
+}
+// Already fixed version (previous message lo ichanu) - use this:
+// REPLACE THESE 2 FUNCTIONS IN mern.html
+async function deleteBook(id) {
+  if(!confirm("Delete book?")) return;
+  try {
+    const res = await fetch(`http://localhost:5000/api/books/${id}`, {method:'DELETE'});
+    const data = await res.json();
+    if(res.ok) {
+      alert("✅ Book Deleted!");
+      await loadBooks();
+      showAllBooks();
+    } else {
+      alert("❌ "+data.message);
+    }
+  } catch(e) {
+    alert("❌ Server Error");
+  }
+}
+
+
+async function deleteUser(id) {
+  if(!confirm("Delete user?")) return;
+  try {
+    const res = await fetch(`http://localhost:5000/api/users/${id}`, {method:'DELETE'});
+    const data = await res.json();
+    if(res.ok) {
+      alert("✅ User Deleted!");
+      updateCounts();
+      showMembers();
+    } else {
+      alert("❌ "+data.message);
+    }
+  } catch(e) {
+    alert("❌ Server Error");
+  }
+}
+async function changePassword(){
+  // Validation
+  if(!oldPass.value || !newPass.value || !confirmPass.value){
+    msg("Fill all fields!");
+    return;
+  }
+  if(newPass.value !== confirmPass.value){
+    msg("New passwords don't match!");
+    return;
+  }
+  if(newPass.value.length < 6){
+    msg("Password must be 6+ characters!");
+    return;
+  }
+  try {
+    let res = await fetch('http://localhost:5000/api/users/change-password', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: currentUser.email,
+        oldPassword: oldPass.value,
+        newPassword: newPass.value
+      })
+    });
+    let data = await res.json();
+    if(data.success){
+      msg("✅ Password changed successfully!");
+      oldPass.value = ""; newPass.value = ""; confirmPass.value = "";
+      show(currentUser.role==='admin'?'dashboard':'userDash');
+    } else {
+      msg("❌ " + data.message);
+    }
+  } catch(e){
+    msg("Server Error");
+  }
+}
+function readBook(pdfPath) {
+  if(!pdfPath){
+    msg("PDF not available!");
+    return;
+  }
+  // New tab lo PDF open chesthundi
+  const pdfUrl = `http://localhost:5000/${pdfPath.replace(/\\/g, '/')}`;
+  window.open(pdfUrl, '_blank');
+}
+// User dashboard lo "Request Issue" button (optional)
+function requestIssue(bookId) {
+  if(currentUser.role !== 'user') return;
+  msg("Contact admin to issue this book!");
+  // Auto copy book ID clipboard ki
+  navigator.clipboard.writeText(bookId);
+}
+
+async function returnBookAdmin() {
+  const bookId = returnBookId.value.trim();
+
+  if (!bookId) {
+    msg("Enter Book ID");
+    return;
+  }
+
+  const selectedBook = books.find(b => b._id === bookId || b.id === bookId);
+
+  if (!selectedBook) {
+    msg("Book not found");
+    return;
+  }
+
+  if (!selectedBook.userEmail) {
+    msg("Issued user not found");
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/books/${bookId}/return`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userEmail: selectedBook.userEmail
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      returnBookId.value = "";
+      await loadBooks();
+      await updateCounts();
+      showAllBooks();
+    }
+
+    msg(data.message);
+  } catch (e) {
+    msg("❌ Server error");
+  }
+}
+async function payFine(bookId) {
+  if (!confirm("Pay fine and return book?")) return;
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/books/${bookId}/pay-fine`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userEmail: currentUser.email
+      })
+    });
+
+    const data = await res.json();
+    msg(data.message);
+
+    if (data.success) {
+      await loadBooks();
+      await showMyBooks();
+      await updateCounts();
+    }
+  } catch (e) {
+    msg("Payment Failed");
+  }
+}
+function requestIssue(bookId){
+ fetch("http://localhost:5000/api/request",{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({
+    bookId,
+    userEmail:currentUser.email
+  })
+ })
+ .then(res=>res.json())
+ .then(d=>{
+   msg(d.message);
+ })
+ .catch(()=>msg("❌ Request failed"));
+}
+function showRequests(){
+ show('listView');
+ listTitle.innerText="Requests";
+
+ listHead.innerHTML="<tr><th>Book</th><th>User</th><th>Action</th></tr>";
+ listTable.innerHTML="";
+
+ fetch("http://localhost:5000/api/request")
+ .then(res=>res.json())
+ .then(data=>{
+  data.forEach(r=>{
+    listTable.innerHTML+=`
+    <tr>
+      <td>${r.bookId}</td>
+      <td>${r.userEmail}</td>
+      <td>
+        <button onclick="approve('${r._id}')">Approve</button>
+      </td>
+    </tr>`;
+  });
+ });
+}
+async function approve(id) {
+  try {
+    const res = await fetch(`http://localhost:5000/api/request/${id}`, {
+      method: "PUT"
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      await loadBooks();
+      await updateCounts();
+      showRequests();
+      msg("✅ Request approved");
+    } else {
+      msg(data.message || "❌ Approval failed");
+    }
+  } catch (e) {
+    msg("❌ Server error");
+  }
+}
+function generateId(length = 10) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+console.log(generateId());
+function goBack(){
+ show(currentUser.role==="admin"?"dashboard":"userDash");
+}
+
+
+// 🔥 ISSUE DATE FIX - ADD THESE 4 LINES
+setTimeout(() => {
+  document.getElementById('issueDateDisplay').textContent =
+    new Date().toLocaleDateString('en-IN');
+}, 100);
+
+
+show('login');
+</script>
+
+
+</body>
+</html>
